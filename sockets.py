@@ -69,11 +69,13 @@ myWorld.add_set_listener( set_listener )
 @app.route('/')
 def hello():
     '''Return something coherent here.. perhaps redirect to /static/index.html '''
-    return None
+    return flask.redirect("/static/index.html", code=302)
 
 def read_ws(ws,client):
     '''A greenlet function that reads from the websocket and updates the world'''
     # XXX: TODO IMPLEMENT ME
+    #message = ws.receive()
+    #print message
     return None
 
 @sockets.route('/subscribe')
@@ -81,6 +83,8 @@ def subscribe_socket(ws):
     '''Fufill the websocket URL of /subscribe, every update notify the
        websocket and read updates from the websocket '''
     # XXX: TODO IMPLEMENT ME
+    message = ws.receive()
+    print message
     return None
 
 
@@ -97,23 +101,36 @@ def flask_post_json():
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
     '''update the entities via this interface'''
-    return None
+
+    args = flask_post_json()
+
+    if(request.method =="POST"):
+      myWorld.set(entity, args)
+      return json.dumps(myWorld.get(entity) ), 201
+
+    if(request.method =="PUT"): #dont else it mydude
+      #PUT needs code 200 and PUT can be used to update
+      for i in args:
+        myWorld.update(entity, i, args[i]) 
+      return json.dumps(myWorld.get(entity) ), 200
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
     '''you should probably return the world here'''
-    return None
+    return json.dumps(myWorld.world() ), 200
 
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
-    return None
+    return json.dumps(myWorld.get(entity) ), 200
 
 
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     '''Clear the world out!'''
-    return None
+    myWorld.clear()
+
+    return json.dumps(myWorld.world() ), 200
 
 
 
