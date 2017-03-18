@@ -24,8 +24,19 @@
   </head> 
   <body bgcolor="white" height="100%" width="100%"> 
     <div id="debug"></div>
-    <canvas id="c" width="100%" height="100%" style="-webkit-tap-highlight-color: transparent;"></canvas> 
-
+    <canvas id="c" width="100%" height="100%" </canvas>
+    <style type="text/css" media="screen">
+    /* credit to 
+       Zeta on SoF for css fit to screen(canvas) code
+       http://stackoverflow.com/questions/9262861/css-background-image-to-fit-width-height-should-auto-scale-in-proportion
+       http://stackoverflow.com/users/1139697/zeta
+    */
+      canvas { background:url(green_hill.jpg);
+               background-size: cover;
+               background-repeat: no-repeat;
+               background-position: center center; 
+             }
+    </style>
     <script>
       // Fix me
 var canvas = document.getElementById('c');
@@ -43,8 +54,6 @@ function debug(str) {
 debug("Test");
 
 world = {};
-
-
 
 
 
@@ -86,8 +95,12 @@ function prepEntity(entity) {
 function clearFrame() {
     with(context) {
 	moveTo(0,0);
-	fillStyle = "#000";
-	fillRect(0,0,W,H);
+	//fillStyle = "#000";
+	//fillRect(0,0,W,H);
+        var green_hill = new Image;
+        green_hill.src = "green_hill.jpg";
+        drawImage(green_hill, W, H); //desnt really work, so youll just have laods of sonics
+	
     }
 
 }
