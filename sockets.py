@@ -65,6 +65,27 @@ def set_listener( entity, data ):
     ''' do something with the update ! '''
 
 myWorld.add_set_listener( set_listener )
+
+def send_all(msg):
+    for client in clients:
+        client.put( msg )
+
+def send_all_json(obj):
+    send_all( json.dumps(obj) )
+
+#from Abram Hindle's branch about websockets
+#https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py
+class Client:
+    def __init__(self):
+        self.queue = queue.Queue()
+
+    def put(self, v):
+        self.queue.put_nowait(v)
+
+    def get(self):
+	return self.queue.get()
+
+clients = list()
         
 @app.route('/')
 def hello():
@@ -74,18 +95,42 @@ def hello():
 def read_ws(ws,client):
     '''A greenlet function that reads from the websocket and updates the world'''
     # XXX: TODO IMPLEMENT ME
-    #message = ws.receive()
-    #print message
-    return None
+#from Abram Hindle's branch about websockets
+#https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py
+    try:
+        while True:
+            msg = ws.receive()
+            if (msg is not None):
+		#credit to Ryan Satybrata for this line amongst Hindle's code
+		#https://github.com/kobitoko/CMPUT404-assignment-websockets/blob/master/sockets.py
+		value = json.loads(msg)
+		myWorld.set(value.keys()[0], value.items()[0][1])
+                send_all_json( json.loads(msg) )
+            else:
+                break
+    except Exception, e:
+	print 'Problem during greenlet function read_ws:' + str(e)
 
 @sockets.route('/subscribe')
 def subscribe_socket(ws):
     '''Fufill the websocket URL of /subscribe, every update notify the
        websocket and read updates from the websocket '''
     # XXX: TODO IMPLEMENT ME
-    message = ws.receive()
-    print message
-    return None
+#from Abram Hindle's branch about websockets
+#https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py
+    client = Client()
+    clients.append(client)
+    g = gevent.spawn( read_ws, ws, client )    
+    try:
+        while True:
+            # block here
+            msg = client.get()
+            ws.send(msg)
+    except Exception as e:# WebSocketError as e:
+        print "WS Error %s" % e
+    finally:
+        clients.remove(client)
+	gevent.kill(g)
 
 
 def flask_post_json():

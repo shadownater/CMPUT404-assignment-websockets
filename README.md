@@ -25,7 +25,7 @@ freetests.py is LICENSE'D under a BSD-like license:
 
 From ws4py
 
-Copyright (c) 2011-2014, Sylvain Hellegouarch, Abram Hindle
+Copyright (c) 2011-2014, Sylvain Hellegouarch, Abram Hindle, Jillian Lovas, Ryan Satyabrata, Nicole Lovas
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -57,3 +57,15 @@ Contributors
 
 * Mark Galloway
 * Abram Hindle
+* Ryan Satyabrata
+* Jillian Lovas
+* Nicole Lovas
+
+Code help from Ryan Satyabrata on getting updated info from the world and sending it off. Some help with Python code in general since I'm pretty newbish. https://github.com/kobitoko/CMPUT404-assignment-websockets/blob/master/sockets.py https://github.com/kobitoko/CMPUT404-assignment-websockets/blob/master/index.html
+
+Code from Abram Hnidle for greenlet functions and Client class to handle said greenlet function.
+https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py
+
+credit to Zeta on SoF for css fit to screen(canvas) code
+ http://stackoverflow.com/questions/9262861/css-background-image-to-fit-width-height-should-auto-scale-in-proportion
+http://stackoverflow.com/users/1139697/zeta

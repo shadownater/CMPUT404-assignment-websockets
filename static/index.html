@@ -55,7 +55,41 @@ debug("Test");
 
 world = {};
 
-
+//from my assignment 4
+function sendJSONXMLHTTPRequest(url, objects, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState==4) {
+            try {
+                if (xhr.status==200) {
+                    //XXX: parse some JSON from the request!
+                    //XXX: Pass the data to the callback!
+                    if (callback != null){ 
+                      callback(JSON.parse(xhr.responseText) );
+                    }
+                } 
+  
+            } 
+            catch(e) {
+                alert('Error: ' + e.name);
+            }
+        }
+    };
+    //XXX: POST to a URL
+    //XXX: set the mimetype and the accept headers!
+    // Remember to use application/json !
+    
+    /*
+    credit to apsillers for help with figuring out how to send the request
+    http://stackoverflow.com/users/710446/apsillers
+    on Stack Overflow
+    http://stackoverflow.com/questions/19661157/how-to-add-header-data-in-xmlhttprequest-when-using-formdata
+    */
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send(JSON.stringify(objects) );
+}
 
 //XXX: TODO Make this prettier!
 function drawCircle(context,entity) {
@@ -150,8 +184,19 @@ function getPosition(e) {
 
 function addEntity(entity, data) {
     world[entity] = data;
+
+    //code from Ryan Satyabrata
+    //https://github.com/kobitoko/CMPUT404-assignment-websockets/blob/master/static/index.html
+    //puts the data into the world and then sends it off
+    var dict = {};
+    dict[entity] = data;
+    var dat = JSON.stringify(dict);
+    socket.send(dat);
+
+
     drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just modified!
+    
 }
 var counter = 0;
 function addEntityWithoutName(data) {
@@ -281,6 +326,17 @@ function wsSetup() {
     socket = new WebSocket(url);
     socket.onopen = function() {
         //XXX: TODO What are you going to do here?
+	sendJSONXMLHTTPRequest("/world", null, function(x){
+      //help with the callback from kobitoko (Ryan Satyabrata)
+      //because I had no idea what Im supposed to callback to DO exactly
+      //https://github.com/kobitoko/CMPUT404-assignment-ajax/blob/master/static/index.html
+      //console.log(x);
+      if( world !== x) {
+            world = x; //oo so world is the shared values between clients ahh ok
+            drawNextFrame();
+        }
+    });
+    drawFrame();
     };
     socket.onerror = function(msg) {
         debug("WebSocket Error:" + msg.data);
@@ -288,7 +344,14 @@ function wsSetup() {
     socket.onmessage = function(msg) {  
         try {
             debug("WebSocket Recv:" + msg.data);
-            //XXX: TODO What are you going to do here?            
+            //XXX: TODO What are you going to do here?
+	    drawNextFrame();
+	    //grabs the current updates from other sockets
+	    //from Ryan Satyabrata
+	    //https://github.com/kobitoko/CMPUT404-assignment-websockets/blob/master/static/index.html
+	    var parsed = JSON.parse(msg.data);
+            var key = Object.keys(parsed);
+            world[key] = parsed[key];            
         } catch (e) {
             alert("socket on message: " + e);
         }
